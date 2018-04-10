@@ -5,13 +5,13 @@
             this.output = $('#output');
             this.result = $('#result');
             var self = this,
-                initialColor = this.result.css('background');
+                initialColor = this.body.css('background');
             var colorPicker = $('#color-picker').spectrum({
                 flat: true,
                 chooseText: 'ok',
                 color: initialColor,
                 showAlpha: true,
-                showInput: true,
+                showButtons: false,
                 preferredFormat: "hex",
                 move: function(col) { self.onMove(col.toHexString()); },
                 change: function(col) { self.onChange(col.toHexString()); },
