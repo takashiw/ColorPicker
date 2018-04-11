@@ -126,16 +126,11 @@ ColorTypeEnums = Object.freeze({
     }
 
     var eyeTracker = {
-        eyes : {
-
-        },
+        eyes : {},
         createEye(elementID){
             let eye = document.getElementById(elementID);
             let pupil = eye.lastElementChild;
-
             let eyeBounds = eye.getBoundingClientRect();
-            // let pupilBounds = leftPupil.getBoundingClientRect();
-
             let centerX = eyeBounds.left + eyeBounds.width/2;
             let centerY = eyeBounds.top + eyeBounds.height/2;
             let radius = eyeBounds.width / 2;
@@ -145,9 +140,7 @@ ColorTypeEnums = Object.freeze({
             var x = mouseX - eye.centerX;
             var y = mouseY - eye.centerY;
             var r = eye.radius;
-
             var eyePosition = {x:x, y:y};
-
             if(x*x + y*y > r*r) {
                 if(x !== 0) {
                     var m = y/x;
@@ -159,7 +152,6 @@ ColorTypeEnums = Object.freeze({
                     eyePosition.y = y > 0? r : -r;
                 }
             }
-
             return eyePosition;
         },
         setPupil: function(pupil, pupilMargins) {
@@ -167,49 +159,15 @@ ColorTypeEnums = Object.freeze({
             pupil.style.top = pupilMargins.y.toPrecision(2) + "px";
         },
         startTracking: function() {
-            let leftEye = document.getElementById("right");
-            let leftPupil = leftEye.lastElementChild;
-
-            let leftEyeBounds = leftEye.getBoundingClientRect();
-            let leftPupilBounds = leftPupil.getBoundingClientRect();
-
-            var leftCenterX = leftEyeBounds.left + leftEyeBounds.width/2;
-            var leftCenterY = leftEyeBounds.top + leftEyeBounds.height/2;
-            var r = leftEyeBounds.width / 2;
-            self = this;
+            selfEyes = this;
             document.onmousemove = function(e) {
                 var mouseX = e.clientX;
                 var mouseY = e.clientY;
-                for (var key in self.eyes) {
-                    let eye = self.eyes[key];
-                    let eyePupilMargins = self.calculateMouseToPupilMargins(eye, mouseX, mouseY);
-                    console.log(eyePupilMargins);
-                    self.setPupil(eye.pupil, eyePupilMargins);
+                for (var key in selfEyes.eyes) {
+                    let eye = selfEyes.eyes[key];
+                    let eyePupilMargins = selfEyes.calculateMouseToPupilMargins(eye, mouseX, mouseY);
+                    selfEyes.setPupil(eye.pupil, eyePupilMargins);
                 }
-
-                // // console.log(mouse_x);
-
-                // var x = mouseX - leftCenterX;
-                // var y = mouseY - leftCenterY;
-
-                // var leftEyePosition = {x:x, y:y};
-
-                // if(x*x + y*y > r*r) {
-                //     if(x !== 0) {
-                //         var m = y/x;
-                //         leftEyePosition.x = Math.sqrt(r*r / (m*m + 1));
-                //         leftEyePosition.x = (x > 0)? leftEyePosition.x : -leftEyePosition.x;
-                //         leftEyePosition.y = Math.abs(m * leftEyePosition.x);
-                //         leftEyePosition.y = (y > 0)? leftEyePosition.y : -leftEyePosition.y;
-                //     } else {
-                //         leftEyePosition.y = y > 0? r : -r;
-                //     }
-                // }
-
-                // // pupil.style.left = "20px";
-                // leftPupil.style.left = leftEyePosition.x.toPrecision(2) + "px";
-                // leftPupil.style.top = leftEyePosition.y.toPrecision(2) + "px";
-                // // console.log(leftEyePosition.x.toPrecision(2) + "px");
             }
         }
     }
