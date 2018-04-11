@@ -15,8 +15,38 @@ body {
     background: white;
     border-radius: 24px;
     top: 50%;
+    padding: 40px 50px;
     transform: translateY(-50%);
     display: flex;
+    -webkit-box-shadow: 0px 20px 41px 0px rgba(0,0,0,0.25);
+-moz-box-shadow: 0px 7px 41px 0px rgba(0,0,0,0.25);
+box-shadow: 0px 7px 41px 0px rgba(0,0,0,0.25);
+}
+
+.chami {
+    position: fixed;
+    width: 100px;
+    top: -77px;
+    left: -30px;
+}
+
+.eyeSockets {
+    position: absolute;
+    width: 50px;
+    height: 27px;
+    margin: 30px 0 0 60px;
+}
+
+.eyes {
+    position: absolute;
+    width: 40px;
+    bottom: 0;
+    right: 0;
+}
+
+.chami path {
+    fill: #C1F68B;
+    stroke: #9BCB6B;
 }
 
 h1 {
@@ -29,15 +59,13 @@ h2, h3 {
     margin: 0;
 }
 
-h3 {
-    margin: 0;
+.input h3 {
     margin-top: 16px; 
 }
 
 .input {
     display: inline-block;
     margin: 0;
-    padding: 40px 50px;
     width: 50%;
 }
 
@@ -63,7 +91,7 @@ input[type="text"] {
     display: inline-block;
     margin: 0;
     padding: 0;
-    width: 50%;
+    width: 80%;
 }
 
 .result {
@@ -78,15 +106,42 @@ input[type="text"] {
 }
 
 .output {
-    margin-bottom: 5em;
-    padding: 1em;
-    color: #fff;
-    border-bottom: 2px dashed #42595E;
-    text-align: center;
-    text-transform: uppercase;
-    font-size: .8em;
-    text-shadow: 0 -1px 0 #2b3e42;
-    color: #475d62;
+    padding: 0 1em;
+}
+
+.outputCell {
+    display: table-row;
+    background-color: #D8D8D8;
+    margin-bottom: 32px;
+    padding: 32px 32px 16px;
+    border-radius: 24px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.output h3, output svg {
+    /* flex-basis: min-content; */
+    /* align-self: top; */
+}
+
+.output h3 {
+    font-weight: bold;
+    color: white;
+}
+
+.output p {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    font-weight: bold;
+    color: black;
+    width: 100%;
+}
+
+.output svg {
+    height: 24px;
+    right: 0;
+    fill: white;
 }
 
 .sp-container {
