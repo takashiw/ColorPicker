@@ -9,6 +9,10 @@ body {
     justify-content: center;
 }
 
+::selection {
+    background-color: green;
+}
+
 .container {
     position: absolute;
     width: 835px;
@@ -140,9 +144,50 @@ input[type="text"] {
     margin-bottom: 32px;
     padding: 32px 32px 16px;
     border-radius: 24px;
+    border: 0px green solid;
+    border-color: red;
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
+    transition: background-color 1s ease-in-out;
+}
+
+.outputCell:hover {
+    border-width: 3px;
+    border-color: orange;
+    margin: -3px -3px 29px -3px ; 
+    cursor: copy;
+}
+
+.outputCell:active {
+    background-color: green;
+    margin: -3px -3px 29px -3px ; 
+    border: 3px lightgreen solid;
+    transition: background-color 0.1s ease-in-out;
+}
+
+.outputCell:hover svg {
+    fill: #9B9B9B;
+}
+
+.outputCell:active svg {
+    fill: black;
+}
+
+.toolTip {
+    position: absolute;
+    width: 200px;
+    z-index: -1;
+}
+
+.toolTip h5 {
+    position: absolute;
+    top: -50px;
+    transition: top 0.14s ease-in-out;
+}
+
+.outputCell:hover h5 {
+    top: -74px;
 }
 
 .output h3, output svg {

@@ -3,7 +3,8 @@ copySVGString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><
 ColorTypeEnums = Object.freeze({
     unity: "unity",
     rgba: "rgba", 
-    "allValues": ["unity", "rgba"]
+    hex: "hex", 
+    "allValues": ["unity", "rgba", "hex"]
 });
 
 (function () {
@@ -121,22 +122,49 @@ ColorTypeEnums = Object.freeze({
             div.id = this.colorType;
             this.colorTypeTitleLabel = document.createElement("h3");
             this.colorTypeTitleLabel.appendChild(document.createTextNode(this.colorType));
+            this.toolTip = document.createElement("div");
+            this.toolTip.className = "toolTip";
+            this.toolTipLabel = document.createElement("h5");
+            this.toolTipLabel.appendChild(document.createTextNode("copy this?"));
+            this.toolTip.appendChild(this.toolTipLabel);
             this.copySVG = document.createElement("div");
             this.copySVG.innerHTML = copySVGString;
             this.colorValueLabel = document.createElement("p");
             this.colorValueLabel.appendChild(document.createTextNode(this.colorValue));
             div.appendChild(this.colorTypeTitleLabel);
+            div.appendChild(this.toolTip);
             div.appendChild(this.copySVG);
             div.appendChild(this.colorValueLabel);
             div.addEventListener("click", outputCell.buttonEvent.bind(this));
+            div.addEventListener("mouseleave", outputCell.hoverEvent.bind(this));
             return div;
             return ('<div class="outputCell" id="outputCell"><h3>Unity C#</h3><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M433.941 65.941l-51.882-51.882A48 48 0 0 0 348.118 0H176c-26.51 0-48 21.49-48 48v48H48c-26.51 0-48 21.49-48 48v320c0 26.51 21.49 48 48 48h224c26.51 0 48-21.49 48-48v-48h80c26.51 0 48-21.49 48-48V99.882a48 48 0 0 0-14.059-33.941zM266 464H54a6 6 0 0 1-6-6V150a6 6 0 0 1 6-6h74v224c0 26.51 21.49 48 48 48h96v42a6 6 0 0 1-6 6zm128-96H182a6 6 0 0 1-6-6V54a6 6 0 0 1 6-6h106v88c0 13.255 10.745 24 24 24h88v202a6 6 0 0 1-6 6zm6-256h-64V48h9.632c1.591 0 3.117.632 4.243 1.757l48.368 48.368a6 6 0 0 1 1.757 4.243V112z"/></svg><p>new Color(0.1, 0.2, 0.3, 1);</p></div>');
         },
+        setColor: function(color) {
+            var style = document.createElement('style');
+            var css = "::selection{ background-color: " + color + " } " + ".outputCell:active {background-color: " + color + "}" ;
+
+            if (style.styleSheet) {
+                style.styleSheet.cssText = css;
+            } else {
+                style.appendChild(document.createTextNode(css));
+            }
+            document.getElementsByTagName('head')[0].appendChild(style);
+
+            let outputCells = document.getElementsByClassName("outputCell");
+            console.log(outputCells);
+            for (let index = 0; index < outputCells.length; index++) {
+                console.log("cell is" + outputCells[index]);
+                
+            }
+            for (let cellIndex in outputCells) {
+                // outputCells[1].style.borderColor = color;
+            }
+
+        },
         buttonEvent: function() {
-            // var range = document.body.createTextRange();
-            // range.moveToElementText(this.colorType);
-            // range.select();
-            // TextSelect.apply(document);
+            this.setCopiedState(true);
+
             if(window.getSelection()) {
                 selection = window.getSelection();
                 range = document.createRange();
@@ -145,6 +173,22 @@ ColorTypeEnums = Object.freeze({
                 selection.addRange(range);
             }
             document.execCommand("Copy");
+        },
+        hoverEvent: function() {
+            setTimeout(this.setCopiedState.bind(this),100);
+
+        },
+        setCopiedState: function(isCopied) {
+            let outputCell = document.getElementById(this.colorType);
+            let outputCellTip = outputCell.children[1];
+
+            if(isCopied) {
+                outputCellTip.childNodes[0].innerHTML = "copied to clipboard!";
+                outputCellTip.style.color = "black";
+            } else {
+                outputCellTip.childNodes[0].innerHTML = "copy this?";
+                outputCellTip.style.color = "#9B9B9B";
+            }
         }
     }
 
@@ -234,7 +278,7 @@ ColorTypeEnums = Object.freeze({
         },
         updateColor: function(color) {
             console.log(this.chami);
-
+            outputCell.setColor(color);
             this.chami.changeColor(color);
             this.hexInput[0].value = color;
             console.log(this.hexInput);
@@ -250,6 +294,10 @@ ColorTypeEnums = Object.freeze({
                         convertedColorTypeString = "RGBA";
                         convertedColor = hexCalculator.toRGBAOutput(color);
                         break;
+                    case ColorTypeEnums.hex:
+                        convertedColorTypeString = "HEX";
+                        convertedColor = color;
+                        break;
                     default:
                         break;
                 }
@@ -261,6 +309,7 @@ ColorTypeEnums = Object.freeze({
                     cell = newObjectCell.getHTML();
                     document.getElementById("output").appendChild(cell);
                 }
+                cell.style.borderColor = color;
                 cell.children[0].innerHTML = convertedColorTypeString;
                 cell.lastElementChild.innerHTML = convertedColor;
             }
