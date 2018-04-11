@@ -125,6 +125,95 @@ ColorTypeEnums = Object.freeze({
         }
     }
 
+    var eyeTracker = {
+        eyes : {
+
+        },
+        createEye(elementID){
+            let eye = document.getElementById(elementID);
+            let pupil = eye.lastElementChild;
+
+            let eyeBounds = eye.getBoundingClientRect();
+            // let pupilBounds = leftPupil.getBoundingClientRect();
+
+            let centerX = eyeBounds.left + eyeBounds.width/2;
+            let centerY = eyeBounds.top + eyeBounds.height/2;
+            let radius = eyeBounds.width / 2;
+            this.eyes[elementID] = {pupil, centerX, centerY, radius};
+        },
+        calculateMouseToPupilMargins: function (eye, mouseX, mouseY) {
+            var x = mouseX - eye.centerX;
+            var y = mouseY - eye.centerY;
+            var r = eye.radius;
+
+            var eyePosition = {x:x, y:y};
+
+            if(x*x + y*y > r*r) {
+                if(x !== 0) {
+                    var m = y/x;
+                    eyePosition.x = Math.sqrt(r*r / (m*m + 1));
+                    eyePosition.x = (x > 0)? eyePosition.x : -eyePosition.x;
+                    eyePosition.y = Math.abs(m * eyePosition.x);
+                    eyePosition.y = (y > 0)? eyePosition.y : -eyePosition.y;
+                } else {
+                    eyePosition.y = y > 0? r : -r;
+                }
+            }
+
+            return eyePosition;
+        },
+        setPupil: function(pupil, pupilMargins) {
+            pupil.style.left = pupilMargins.x.toPrecision(2) + "px";
+            pupil.style.top = pupilMargins.y.toPrecision(2) + "px";
+        },
+        startTracking: function() {
+            let leftEye = document.getElementById("right");
+            let leftPupil = leftEye.lastElementChild;
+
+            let leftEyeBounds = leftEye.getBoundingClientRect();
+            let leftPupilBounds = leftPupil.getBoundingClientRect();
+
+            var leftCenterX = leftEyeBounds.left + leftEyeBounds.width/2;
+            var leftCenterY = leftEyeBounds.top + leftEyeBounds.height/2;
+            var r = leftEyeBounds.width / 2;
+            self = this;
+            document.onmousemove = function(e) {
+                var mouseX = e.clientX;
+                var mouseY = e.clientY;
+                for (var key in self.eyes) {
+                    let eye = self.eyes[key];
+                    let eyePupilMargins = self.calculateMouseToPupilMargins(eye, mouseX, mouseY);
+                    console.log(eyePupilMargins);
+                    self.setPupil(eye.pupil, eyePupilMargins);
+                }
+
+                // // console.log(mouse_x);
+
+                // var x = mouseX - leftCenterX;
+                // var y = mouseY - leftCenterY;
+
+                // var leftEyePosition = {x:x, y:y};
+
+                // if(x*x + y*y > r*r) {
+                //     if(x !== 0) {
+                //         var m = y/x;
+                //         leftEyePosition.x = Math.sqrt(r*r / (m*m + 1));
+                //         leftEyePosition.x = (x > 0)? leftEyePosition.x : -leftEyePosition.x;
+                //         leftEyePosition.y = Math.abs(m * leftEyePosition.x);
+                //         leftEyePosition.y = (y > 0)? leftEyePosition.y : -leftEyePosition.y;
+                //     } else {
+                //         leftEyePosition.y = y > 0? r : -r;
+                //     }
+                // }
+
+                // // pupil.style.left = "20px";
+                // leftPupil.style.left = leftEyePosition.x.toPrecision(2) + "px";
+                // leftPupil.style.top = leftEyePosition.y.toPrecision(2) + "px";
+                // // console.log(leftEyePosition.x.toPrecision(2) + "px");
+            }
+        }
+    }
+
     var app = {
         start: function() {
             this.fetchUI();
@@ -132,6 +221,12 @@ ColorTypeEnums = Object.freeze({
             this.colorBox.constructor(this);
             var colorPicker = $('#color-picker').spectrum(this.colorBox.options);
             this.colorBox.broadcast(colorPicker.spectrum('get').toHexString());
+            eyeTracker.createEye("right");
+            eyeTracker.createEye("left");
+            eyeTracker.startTracking();
+            // let leftEyeTracker = Object.create(this.trackEye);
+            // let leftEye = Object.create(eyeTracker).trackEye("left");
+            // let rightEye = Object.create(eyeTracker).trackEye("right");
         },
         fetchUI: function() {
             this.body = $('body');
