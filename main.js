@@ -164,7 +164,6 @@ ColorTypeEnums = Object.freeze({
         },
         buttonEvent: function() {
             this.setCopiedState(true);
-
             if(window.getSelection()) {
                 selection = window.getSelection();
                 range = document.createRange();
@@ -173,10 +172,22 @@ ColorTypeEnums = Object.freeze({
                 selection.addRange(range);
             }
             document.execCommand("Copy");
+
+            let chamiPupils = document.getElementsByClassName('pupil');
+            for (let pupil of chamiPupils) {
+                console.log(pupil);
+                pupil.style.transform = "scale(1.3)";
+            }
+
         },
         hoverEvent: function() {
             setTimeout(this.setCopiedState.bind(this),100);
 
+            let chamiPupils = document.getElementsByClassName('pupil');
+            for (let pupil of chamiPupils) {
+                console.log(pupil);
+                pupil.style.transform = "scale(1)";
+            }
         },
         setCopiedState: function(isCopied) {
             let outputCell = document.getElementById(this.colorType);
@@ -242,6 +253,7 @@ ColorTypeEnums = Object.freeze({
     var chami = {
         constructor: function(elementID) {
             this.element = document.getElementById(elementID);
+            this.setEyes();
             this.eyeTracker = Object.create(eyeTracker);
             this.eyeTracker.createEye("right");
             this.eyeTracker.createEye("left");
@@ -254,7 +266,24 @@ ColorTypeEnums = Object.freeze({
             for (let path of paths) {
                 console.log(path + " will now turn " + color);
                 path.style.fill = hexCalculator.setColorBrightness(color, 0.1);
-                path.style.stroke = hexCalculator.setColorBrightness(color, -0.2);
+                path.style.stroke = hexCalculator.setColorBrightness(color, -0.08);
+            }
+        },
+        setEyes() {
+            this.pupils = this.element.querySelectorAll('.pupil');
+            console.log(this.pupils);
+            setInterval(this.blink.bind(this), 9000);
+            this.eyesAreShutState = false;
+        },
+        blink() {
+            for(let pupil of this.pupils) {
+                pupil.style.height = "0px";
+            }
+            setTimeout(this.open.bind(this), 100);
+        },
+        open() {
+            for(let pupil of this.pupils) {
+                pupil.style.height = "14px";
             }
         }
     }
