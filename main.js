@@ -45,6 +45,26 @@ ColorTypeEnums = Object.freeze({
     }
 
     var hexCalculator = {
+        setColorBrightness: function(color, deltaBrightness) {
+            let rgba = this.toRGBA(color);
+            let newRGBA = rgba;
+            let changeInBrightness255 = deltaBrightness * 255;
+            newRGBA.r = parseInt(newRGBA.r + changeInBrightness255);
+            newRGBA.g = parseInt(newRGBA.g + changeInBrightness255);
+            newRGBA.b = parseInt(newRGBA.b + changeInBrightness255);
+
+            newRGBA.r = (newRGBA.r < 255) ? newRGBA.r : 255
+            newRGBA.g = (newRGBA.g < 255) ? newRGBA.g : 255
+            newRGBA.b = (newRGBA.b < 255) ? newRGBA.b : 255
+            newRGBA.r = (newRGBA.r > 0) ? newRGBA.r : 0
+            newRGBA.g = (newRGBA.g > 0) ? newRGBA.g : 0
+            newRGBA.b = (newRGBA.b > 0) ? newRGBA.b : 0
+
+            let hexR = (newRGBA.r.toString(16).length == 1) ? "0" + newRGBA.r.toString(16) : newRGBA.r.toString(16);
+            let hexG = (newRGBA.g.toString(16).length == 1) ? "0" + newRGBA.g.toString(16) : newRGBA.g.toString(16);
+            let hexB = (newRGBA.b.toString(16).length == 1) ? "0" + newRGBA.b.toString(16) : newRGBA.b.toString(16);
+            return "#"+hexR+hexG+hexB
+        },
         toRGBA: function(hexString) {
             var hexRegex = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?/i.exec(hexString);
             return hexRegex ? {
@@ -63,6 +83,9 @@ ColorTypeEnums = Object.freeze({
                     + rgba.b
                     + (!isNaN(rgba.a) ? "," + rgba.a : "")
                     + ")";
+        },
+        rgbaToHex: function() {
+
         },
         toUnityRGBA: function(hexString) {
             var rgba = this.toRGBA(hexString);
@@ -172,6 +195,26 @@ ColorTypeEnums = Object.freeze({
         }
     }
 
+    var chami = {
+        constructor: function(elementID) {
+            this.element = document.getElementById(elementID);
+            this.eyeTracker = Object.create(eyeTracker);
+            this.eyeTracker.createEye("right");
+            this.eyeTracker.createEye("left");
+            this.eyeTracker.startTracking();
+            this.changeColor("C1F68B");
+        },
+        changeColor: function(color) {
+            this.element.style.fill = "red";
+            let paths = this.element.querySelectorAll("path");
+            for (let path of paths) {
+                console.log(path + " will now turn " + color);
+                path.style.fill = hexCalculator.setColorBrightness(color, 0.1);
+                path.style.stroke = hexCalculator.setColorBrightness(color, -0.2);
+            }
+        }
+    }
+
     var app = {
         start: function() {
             this.fetchUI();
@@ -179,12 +222,6 @@ ColorTypeEnums = Object.freeze({
             this.colorBox.constructor(this);
             var colorPicker = $('#color-picker').spectrum(this.colorBox.options);
             this.colorBox.broadcast(colorPicker.spectrum('get').toHexString());
-            eyeTracker.createEye("right");
-            eyeTracker.createEye("left");
-            eyeTracker.startTracking();
-            // let leftEyeTracker = Object.create(this.trackEye);
-            // let leftEye = Object.create(eyeTracker).trackEye("left");
-            // let rightEye = Object.create(eyeTracker).trackEye("right");
         },
         fetchUI: function() {
             this.body = $('body');
@@ -192,8 +229,13 @@ ColorTypeEnums = Object.freeze({
             this.output = $('#output');
             this.outputCell = $('outputCell');
             this.result = $('#result');
+            this.chami = Object.create(chami);
+            this.chami.constructor("chami");
         },
         updateColor: function(color) {
+            console.log(this.chami);
+
+            this.chami.changeColor(color);
             this.hexInput[0].value = color;
             console.log(this.hexInput);
             for (let colorType of ColorTypeEnums.allValues) {
