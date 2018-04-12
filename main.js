@@ -4,7 +4,8 @@ ColorTypeEnums = Object.freeze({
     unity: "unity",
     rgba: "rgba", 
     hex: "hex", 
-    "allValues": ["unity", "rgba"]
+    swift: "swift", 
+    "allValues": ["unity", "swift", "rgba"]
 });
 
 (function () {
@@ -105,6 +106,27 @@ ColorTypeEnums = Object.freeze({
                     +   (!isNaN(unityColor.a) ? 
                             ( ", " + unityColor.a.toPrecision(2) + ");")
                             : (");")
+                        ); 
+        },
+        toSwift: function(hexString) {
+            var rgba = this.toRGBA(hexString);
+            var swiftColor = rgba ? {
+                r: rgba.r / 256,
+                g: rgba.g / 256,
+                b: rgba.b / 256,
+                a: rgba.a / 256
+            } : null;
+            var swiftFormat = this.formatForSwift(swiftColor);
+            return swiftFormat;
+        },
+        formatForSwift: function(unityColor) {
+            return "UIColor(" 
+                    + "red:" + unityColor.r.toPrecision(2) + ", "
+                    + "green:" + unityColor.g.toPrecision(2) + ", "
+                    + "blue:" + unityColor.b.toPrecision(2)
+                    +   (!isNaN(unityColor.a) ? 
+                            ( ", alpha:" + unityColor.a.toPrecision(2) + ");")
+                            : (", alpha: 1.0);")
                         ); 
         },
         isValidHex: function(hexString) {
@@ -323,6 +345,10 @@ ColorTypeEnums = Object.freeze({
                     case ColorTypeEnums.unity:
                         convertedColorTypeString = "Unity C#";
                         convertedColor = hexCalculator.toUnityRGBA(color);
+                        break;
+                    case ColorTypeEnums.swift:
+                        convertedColorTypeString = "Swift";
+                        convertedColor = hexCalculator.toSwift(color);
                         break;
                     case ColorTypeEnums.rgba:
                         convertedColorTypeString = "RGBA";
