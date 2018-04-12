@@ -4,7 +4,7 @@ ColorTypeEnums = Object.freeze({
     unity: "unity",
     rgba: "rgba", 
     hex: "hex", 
-    "allValues": ["unity", "rgba", "hex"]
+    "allValues": ["unity", "rgba"]
 });
 
 (function () {
@@ -26,8 +26,6 @@ ColorTypeEnums = Object.freeze({
             }
         },
         onMove: function(color) {
-            this.app.result.css('background', color);
-            this.app.body.css('background', color);
             this.broadcast(color);
         },
         onChange: function(color) {
@@ -108,6 +106,15 @@ ColorTypeEnums = Object.freeze({
                             ( ", " + unityColor.a.toPrecision(2) + ");")
                             : (");")
                         ); 
+        },
+        isValidHex: function(hexString) {
+            var hexRegex = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?\b/i.exec(hexString);
+            return hexRegex != null;
+        },
+        contrastColor: function(hexString) {
+            let rgba = this.toRGBA(hexString);
+            let sum = rgba.r + rgba.g + rgba.b;
+            return sum/3 < 256/2 ? "white" : "black";
         }
     }
 
@@ -142,7 +149,7 @@ ColorTypeEnums = Object.freeze({
         },
         setColor: function(color) {
             var style = document.createElement('style');
-            var css = "::selection{ background-color: " + color + " } " + ".outputCell:active {background-color: " + color + "}" ;
+            var css = "::selection{ background-color: " + color + "; color: " + hexCalculator.contrastColor(color) + " } " + ".outputCell:active {background-color: " + color + "}" ;
 
             if (style.styleSheet) {
                 style.styleSheet.cssText = css;
@@ -150,23 +157,13 @@ ColorTypeEnums = Object.freeze({
                 style.appendChild(document.createTextNode(css));
             }
             document.getElementsByTagName('head')[0].appendChild(style);
-
-            let outputCells = document.getElementsByClassName("outputCell");
-            console.log(outputCells);
-            for (let index = 0; index < outputCells.length; index++) {
-                console.log("cell is" + outputCells[index]);
-                
-            }
-            for (let cellIndex in outputCells) {
-                // outputCells[1].style.borderColor = color;
-            }
-
         },
-        buttonEvent: function() {
+        buttonEvent: function(e) {
             this.setCopiedState(true);
             if(window.getSelection()) {
-                selection = window.getSelection();
-                range = document.createRange();
+                let selection = window.getSelection();
+                let range = document.createRange();
+                console.log(document.getElementById(this.colorType).lastChild);
                 range.selectNodeContents(document.getElementById(this.colorType).lastChild);
                 selection.removeAllRanges();
                 selection.addRange(range);
@@ -175,7 +172,6 @@ ColorTypeEnums = Object.freeze({
 
             let chamiPupils = document.getElementsByClassName('pupil');
             for (let pupil of chamiPupils) {
-                console.log(pupil);
                 pupil.style.transform = "scale(1.3)";
             }
 
@@ -185,20 +181,54 @@ ColorTypeEnums = Object.freeze({
 
             let chamiPupils = document.getElementsByClassName('pupil');
             for (let pupil of chamiPupils) {
-                console.log(pupil);
                 pupil.style.transform = "scale(1)";
             }
         },
         setCopiedState: function(isCopied) {
             let outputCell = document.getElementById(this.colorType);
             let outputCellTip = outputCell.children[1];
-
             if(isCopied) {
                 outputCellTip.childNodes[0].innerHTML = "copied to clipboard!";
                 outputCellTip.style.color = "black";
             } else {
                 outputCellTip.childNodes[0].innerHTML = "copy this?";
                 outputCellTip.style.color = "#9B9B9B";
+            }
+        }
+    }
+
+    var chami = {
+        constructor: function(elementID) {
+            this.element = document.getElementById(elementID);
+            this.setEyes();
+            this.eyeTracker = Object.create(eyeTracker);
+            this.eyeTracker.createEye("right");
+            this.eyeTracker.createEye("left");
+            this.eyeTracker.startTracking();
+            this.changeColor("C1F68B");
+        },
+        changeColor: function(color) {
+            this.element.style.fill = "red";
+            let paths = this.element.querySelectorAll("path");
+            for (let path of paths) {
+                path.style.fill = hexCalculator.setColorBrightness(color, 0.1);
+                path.style.stroke = hexCalculator.setColorBrightness(color, -0.08);
+            }
+        },
+        setEyes() {
+            this.pupils = this.element.querySelectorAll('.pupil');
+            setInterval(this.blink.bind(this), 9000);
+            this.eyesAreShutState = false;
+        },
+        blink() {
+            for(let pupil of this.pupils) {
+                pupil.style.height = "0px";
+            }
+            setTimeout(this.open.bind(this), 100);
+        },
+        open() {
+            for(let pupil of this.pupils) {
+                pupil.style.height = "14px";
             }
         }
     }
@@ -250,44 +280,6 @@ ColorTypeEnums = Object.freeze({
         }
     }
 
-    var chami = {
-        constructor: function(elementID) {
-            this.element = document.getElementById(elementID);
-            this.setEyes();
-            this.eyeTracker = Object.create(eyeTracker);
-            this.eyeTracker.createEye("right");
-            this.eyeTracker.createEye("left");
-            this.eyeTracker.startTracking();
-            this.changeColor("C1F68B");
-        },
-        changeColor: function(color) {
-            this.element.style.fill = "red";
-            let paths = this.element.querySelectorAll("path");
-            for (let path of paths) {
-                console.log(path + " will now turn " + color);
-                path.style.fill = hexCalculator.setColorBrightness(color, 0.1);
-                path.style.stroke = hexCalculator.setColorBrightness(color, -0.08);
-            }
-        },
-        setEyes() {
-            this.pupils = this.element.querySelectorAll('.pupil');
-            console.log(this.pupils);
-            setInterval(this.blink.bind(this), 9000);
-            this.eyesAreShutState = false;
-        },
-        blink() {
-            for(let pupil of this.pupils) {
-                pupil.style.height = "0px";
-            }
-            setTimeout(this.open.bind(this), 100);
-        },
-        open() {
-            for(let pupil of this.pupils) {
-                pupil.style.height = "14px";
-            }
-        }
-    }
-
     var app = {
         start: function() {
             this.fetchUI();
@@ -299,18 +291,31 @@ ColorTypeEnums = Object.freeze({
         fetchUI: function() {
             this.body = $('body');
             this.hexInput = $('#hexTextInput');
+            this.hexInput.bind('input', this.hexValueChanged.bind(this));
+            this.hexInput.bind('click', this.hexClicked.bind(this));
             this.output = $('#output');
             this.outputCell = $('outputCell');
             this.result = $('#result');
             this.chami = Object.create(chami);
             this.chami.constructor("chami");
         },
+        hexValueChanged: function(e) {
+            if(hexCalculator.isValidHex(e.target.value)) {
+                this.hexInput.css({'borderColor': '', "animation-name": 'correct', "animation-time": "1s"});
+                $('#color-picker').spectrum('set', e.target.value);
+                this.updateColor(e.target.value);
+            } else {
+                this.hexInput.css({"animation-name": 'shake', "animation-time": "1s"});
+            }
+        },
+        hexClicked: function(e) {
+            e.target.select();
+        },
         updateColor: function(color) {
-            console.log(this.chami);
+            this.body.css('background-color', color);
             outputCell.setColor(color);
             this.chami.changeColor(color);
             this.hexInput[0].value = color;
-            console.log(this.hexInput);
             for (let colorType of ColorTypeEnums.allValues) {
                 var convertedColorTypeString;
                 var convertedColor;

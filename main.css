@@ -9,6 +9,22 @@ body {
     justify-content: center;
 }
 
+body::after {
+    background: #20e063;
+    z-index: 1;
+}
+
+.nullBackground {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* background: url(checkerboard.jpg);
+    background-repeat: repeat;
+    background-size: contain; */
+}
+
 ::selection {
     background-color: green;
 }
@@ -99,8 +115,31 @@ h2, h3 {
     width: 50%;
 }
 
+input[type="text"]:focus {
+    /* border-radius: 50px; */
+    outline: none;
+    border-color: darkgray;
+}
+
 .hexTextInput {
     width: 120px;
+    transition: border-color 0s;
+    animation-duration: 0.6s;
+}
+
+@keyframes correct {
+    0% {border-color: #20e063}
+    40% {transform: translateY(4px);border-color: #20e063}
+    100% {transform: translateY(0px);border-color: black}
+}
+
+@keyframes shake {
+    0% {border-color: red; transform: translateX(0px);}
+    20% {transform: translateX(-4px);}
+    40% {border-color: red; transform: translateX(4px);}
+    60% {transform: translateX(-4px);}
+    80% {transform: translateX(4px);}
+    top {transform: translateX(0px);}
 }
 
 .alphaTextInput {
