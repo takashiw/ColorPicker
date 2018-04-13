@@ -18,24 +18,12 @@ ColorTypeEnums = Object.freeze({
                 flat: true,
                 chooseText: 'ok',
                 color: initialColor,
-                showAlpha: true,
                 showButtons: false,
                 preferredFormat: "hex",
-                move: function(col) { self.onMove(col.toHexString()); },
-                change: function(col) { self.onChange(col.toHexString()); },
-                hide: function(col) { self.onHide(col.toHexString()); }
+                move: function(col) { self.onMove(col.toHexString()); }
             }
         },
         onMove: function(color) {
-            this.broadcast(color);
-        },
-        onChange: function(color) {
-            this.app.result.css('background', color);
-            this.app.body.css('background', color);
-            this.broadcast(color);
-        },
-        onHide: function(color) {
-            this.result.css('background', color);
             this.broadcast(color);
         },
         broadcast: function(color) {
@@ -99,13 +87,13 @@ ColorTypeEnums = Object.freeze({
             return unityFormat;
         },
         formatForUnity: function(unityColor) {
-            return "Color(" 
-                    + unityColor.r.toPrecision(2) + ", "
-                    + unityColor.g.toPrecision(2) + ", "
+            return "new Color(" 
+                    + unityColor.r.toPrecision(2) + "f, "
+                    + unityColor.g.toPrecision(2) + "f, "
                     + unityColor.b.toPrecision(2)
                     +   (!isNaN(unityColor.a) ? 
-                            ( ", " + unityColor.a.toPrecision(2) + ");")
-                            : (");")
+                            ( "f, " + unityColor.a.toPrecision(2) + "f);")
+                            : ("f)")
                         ); 
         },
         toSwift: function(hexString) {
@@ -314,6 +302,7 @@ ColorTypeEnums = Object.freeze({
             this.body = $('body');
             this.hexInput = $('#hexTextInput');
             this.hexInput.bind('input', this.hexValueChanged.bind(this));
+            this.hexInput.bind('paste', this.hexValueChanged.bind(this));
             this.hexInput.bind('click', this.hexClicked.bind(this));
             this.output = $('#output');
             this.outputCell = $('outputCell');
@@ -323,9 +312,12 @@ ColorTypeEnums = Object.freeze({
         },
         hexValueChanged: function(e) {
             if(hexCalculator.isValidHex(e.target.value)) {
+                let color = e.target.value;
+                if(color[0] != '#') { color = '#' + color; }
                 this.hexInput.css({'borderColor': '', "animation-name": 'correct', "animation-time": "1s"});
-                $('#color-picker').spectrum('set', e.target.value);
-                this.updateColor(e.target.value);
+                console.log(color.substring(0, 7));
+                $('#color-picker').spectrum('set', color.substring(0, 7));
+                this.updateColor(color);
             } else {
                 this.hexInput.css({"animation-name": 'shake', "animation-time": "1s"});
             }
@@ -334,6 +326,9 @@ ColorTypeEnums = Object.freeze({
             e.target.select();
         },
         updateColor: function(color) {
+            if(color[0] != '#') {
+                color = '#' + color;
+            }
             this.body.css('background-color', color);
             outputCell.setColor(color);
             this.chami.changeColor(color);
